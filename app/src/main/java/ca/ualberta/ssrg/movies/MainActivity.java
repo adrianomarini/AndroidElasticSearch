@@ -9,7 +9,10 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 import ca.ualberta.ssrg.androidelasticsearch.R;
 
@@ -43,13 +46,13 @@ public class MainActivity extends Activity {
 		// Show details when click on a movie
 		movieList.setOnItemClickListener(new OnItemClickListener() {
 
-			@Override
-			public void onItemClick(AdapterView<?> parent, View view, int pos,	long id) {
-				int movieId = movies.get(pos).getId();
-				startDetailsActivity(movieId);
-			}
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int pos, long id) {
+                int movieId = movies.get(pos).getId();
+                startDetailsActivity(movieId);
+            }
 
-		});
+        });
 
 		// Delete movie on long click
 		movieList.setOnItemLongClickListener(new OnItemLongClickListener() {
@@ -71,7 +74,9 @@ public class MainActivity extends Activity {
 	protected void onResume() {
 		super.onResume();
 		
-		
+		//you cannot access the network from the gui thread
+		//so, lets make another thread for that
+		//if we try to use the GUI thread, the gui will stop and wait
 		SearchThread thread = new SearchThread("*");
 
 		thread.start();
@@ -99,11 +104,12 @@ public class MainActivity extends Activity {
 	 */
 	public void search(View view) {
 		movies.clear();
-
 		// TODO: Extract search query from text view
-		
+        EditText searchThing = (EditText) findViewById(R.id.editText1);
+        String searchTerm = searchThing.getText().toString();
 		// TODO: Run the search thread
-		
+        SearchThread searchThread = new SearchThread(searchTerm);
+        searchThread.start();
 	}
 	
 	/**
